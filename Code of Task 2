@@ -1,0 +1,83 @@
+// -------------------------------
+// TRAFFIC + PEDESTRIAN LIGHT SYSTEM
+// Task 2 - Arduino Code (Wokwi Compatible)
+// -------------------------------
+
+// CAR LIGHT PINS
+int carRed = 4;
+int carYellow = 3;
+int carGreen = 2;
+  
+  // PEDESTRIAN LIGHT PINS
+int pedRed = 7;
+int pedGreen = 6;
+
+// BUTTON PIN
+int button = 5;
+
+bool buttonPressed = false;
+
+// TIME SETTINGS (milliseconds)
+const int greenTime = 10000;   // 10 sec
+const int yellowTime = 5000;   // 5 sec
+const int pedTime = 5000;      // 5 sec
+
+// STATE VARIABLE
+int state = 0;  // 0=Green, 1=Yellow, 2=Red
+unsigned long lastChange = 0;
+
+void setup() {
+  // Pin setup
+  pinMode(carRed, OUTPUT);
+  pinMode(carYellow, OUTPUT);
+  pinMode(carGreen, OUTPUT);
+  pinMode(pedRed, OUTPUT);
+  pinMode(pedGreen, OUTPUT);
+  pinMode(button, INPUT_PULLUP); // Button pressed -> LOW
+}
+
+void loop() {
+  buttonPressed = (digitalRead(button) == LOW); // Button check
+
+  switch (state) {
+    case 0: // CAR GREEN, PED RED
+      digitalWrite(carGreen, HIGH);
+      digitalWrite(carYellow, LOW);
+      digitalWrite(carRed, LOW);
+      digitalWrite(pedRed, HIGH);
+      digitalWrite(pedGreen, LOW);
+
+      // If 10 sec passed OR button pressed
+      if (millis() - lastChange > greenTime || buttonPressed) {
+        state = 1;
+        lastChange = millis();
+      }
+      break;
+
+    case 1: // CAR YELLOW, PED RED
+      digitalWrite(carGreen, LOW);
+      digitalWrite(carYellow, HIGH);
+      digitalWrite(carRed, LOW);
+      digitalWrite(pedRed, HIGH);
+      digitalWrite(pedGreen, LOW);
+
+      if (millis() - lastChange > yellowTime) {
+        state = 2;
+        lastChange = millis();
+      }
+      break;
+
+    case 2: // CAR RED, PED GREEN
+      digitalWrite(carGreen, LOW);
+      digitalWrite(carYellow, LOW);
+      digitalWrite(carRed, HIGH);
+      digitalWrite(pedRed, LOW);
+      digitalWrite(pedGreen, HIGH);
+
+      if (millis() - lastChange > pedTime) {
+        state = 0;
+        lastChange = millis();
+      }
+      break;
+  }
+}
